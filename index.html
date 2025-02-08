@@ -1,0 +1,77 @@
+<!doctype html> 
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8" />
+    <title>Making your first Phaser 3 Game - Part 1</title>
+    <script src="phaser.js"></script>
+    <script src="platform.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+
+    const HEIGHT = window.innerHeight;
+    const WIDTH = window.innerWidth;
+
+    var config = {
+        type: Phaser.AUTO,
+        width: WIDTH,
+        height: HEIGHT,
+        scene: {
+            preload: preload,
+            create: create,
+            update: update
+        }
+    };
+
+    var game = new Phaser.Game(config);
+    platforms = [];
+
+    function preload ()
+    {
+        this.load.image('sky', 'assets/Background/sky.png');
+        this.load.image('ground', 'assets/Background/ground.jpg');
+    }
+
+    function create ()
+    {
+        sky = this.add.tileSprite(0,0,WIDTH,HEIGHT, 'sky').setOrigin(0,0).setScale(2);
+
+        ground = this.add.tileSprite(0, HEIGHT/100*90, WIDTH, 0, 'ground').setOrigin(0,0);
+
+        addPlatform(WIDTH/100*70,HEIGHT/100*50,100,100);
+        addPlatform(WIDTH/100*50,HEIGHT/100*20,500,100);
+
+        platforms.forEach(element => {
+            this.add.tileSprite(element.pos_x, element.pos_y, element.height, element.width,'ground');
+        });
+    }
+
+    function update()
+    {
+        sky.tilePositionX += 1;
+    }
+
+    function addPlatform(pos_x, pos_y, height, width) {
+        platform = {
+            pos_x : pos_x,
+            pos_y : pos_y,
+            height : height,
+            width : width
+        }
+        new_platform = {...platform};
+        platforms.push(new_platform);
+    }
+
+    function drawPlatform(platform){
+        this.add.tileSprite(platform['pos_x'], platform['pos_y'], platform['height'], platform['width'], 'ground').setOrigin(0,0);
+    }
+
+</script>
+</body>
+</html>
