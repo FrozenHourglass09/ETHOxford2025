@@ -4,7 +4,9 @@
     <meta charset="UTF-8" />
     <title>Making your first Phaser 3 Game - Part 1</title>
     <script src="phaser.js"></script>
+
     <script src="platform.js"></script>
+    
     <style type="text/css">
         body {
             margin: 0;
@@ -31,6 +33,8 @@
 
     var game = new Phaser.Game(config);
     platforms = [];
+    var player;
+    const gravity = 0.5;
 
     function preload ()
     {
@@ -50,11 +54,13 @@
         platforms.forEach(element => {
             this.add.tileSprite(element.pos_x, element.pos_y, element.height, element.width,'ground');
         });
+        player = new Player(this, 100, 100);
     }
 
     function update()
     {
         sky.tilePositionX += 1;
+        player.update();
     }
 
     function addPlatform(pos_x, pos_y, height, width) {
@@ -67,6 +73,60 @@
         new_platform = {...platform};
         platforms.push(new_platform);
     }
+
+    class Player {
+        constructor(scene, x, y) {
+            this.scene = scene;
+            this.sprite = scene.add.rectangle(x, y, 100, 100, 0xff0000);
+            this.velocity = {x: 0, y: 1};
+            this.height = 100;
+        }
+
+        update() {
+            this.sprite.x += this.velocity.x;
+            this.sprite.y += this.velocity.y;
+            if (this.sprite.y + this.height + this.velocity.y < HEIGHT) {
+                this.velocity.y += gravity;
+            } else {
+                this.velocity.y = 0;
+            }
+        }
+    }
+
+    const keys = {
+        d: {key: 'd', pressed: false},
+        q: {key: 'q', pressed: false},
+        z: {key: 'z', pressed: false}
+    };
+
+    window.addEventListener('keydown', (event) => {
+        switch(event.key){
+            case 'd':
+                keys.d.pressed = true;
+                player.velocity.x = 3;
+                break;
+            case 'q':
+                keys.q.pressed = true;
+                player.velocity.x = -3;
+                break;
+            case 'z':
+                player.velocity.y = -15;
+                break;
+        }
+    });
+
+window.addEventListener('keyup', (event) => {
+    switch(event.key){
+        case 'd':
+            keys.d.pressed = false
+            player.velocity.x = 0;
+            break
+        case 'q':
+            keys.q.pressed = false
+            player.velocity.x = 0;
+            break
+    }
+})
 
     function drawPlatform(platform){
         this.add.tileSprite(platform['pos_x'], platform['pos_y'], platform['height'], platform['width'], 'ground').setOrigin(0,0);
