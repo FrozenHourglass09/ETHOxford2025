@@ -34,22 +34,49 @@
     const WIDTH = window.innerWidth;
 
     //Variables
-    var config = {
-        type: Phaser.AUTO,
-        width: WIDTH,
-        height: HEIGHT,
-        scene: {
-            preload: preload,
-            create: create,
-            update: update
-        }
-    };
-
-
-    var game = new Phaser.Game(config);
-    platforms = [];
+    var game;
+    var isConnected = false;
+    var platforms = [];
     var player;
     const gravity = 0.5;
+
+    // Function to connect to MetaMask
+    async function connectWallet() {
+        if (window.ethereum) {
+            try {
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                console.log('Connected account:', accounts[0]);
+                document.getElementById('connectButton').innerText = 'Connected';
+                isConnected = true;
+                startGame();
+            } catch (error) {
+                console.error('User rejected the request.');
+            }
+        } else {
+            alert('MetaMask is not installed. Please install it to use this feature.');
+        }
+    }
+
+    // Add event listener to the connect button
+    document.getElementById('connectButton').addEventListener('click', connectWallet);
+
+    // Function to start the game
+    function startGame() {
+        if (isConnected) {
+            var config = {
+                type: Phaser.AUTO,
+                width: WIDTH,
+                height: HEIGHT,
+                scene: {
+                    preload: preload,
+                    create: create,
+                    update: update
+                }
+            };
+
+            game = new Phaser.Game(config);
+        }
+    }
 
     //Functions that are called by the game 
     function preload ()
@@ -198,24 +225,6 @@
     function drawPlatform(platform){
         this.add.tileSprite(platform['pos_x'], platform['pos_y'], platform['height'], platform['width'], 'ground').setOrigin(0,0);
     }
-
-    // Function to connect to MetaMask
-    async function connectWallet() {
-        if (window.ethereum) {
-            try {
-                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                console.log('Connected account:', accounts[0]);
-                document.getElementById('connectButton').innerText = 'Connected';
-            } catch (error) {
-                console.error('User rejected the request.');
-            }
-        } else {
-            alert('MetaMask is not installed. Please install it to use this feature.');
-        }
-    }
-
-    // Add event listener to the connect button
-    document.getElementById('connectButton').addEventListener('click', connectWallet);
 
 </script>
 </body>
