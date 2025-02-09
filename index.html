@@ -33,28 +33,10 @@
     const HEIGHT = window.innerHeight;
     const WIDTH = window.innerWidth;
 
-    //Variables
-    var isConnected = false;
-    var config = {
-        type: Phaser.AUTO,
-        width: WIDTH,
-        height: HEIGHT,
-        physics: {
-            default: "arcade",
-            arcade: {
-                debug: true
-            }
-        },
-        scene: {
-            preload: preload,
-            create: create,
-            update: update
-        }
-    };
-
-
-    var game = new Phaser.Game(config);
-    platforms = [];
+//Variables
+var isConnected = false;
+    var game;
+    var platforms = [];
     var player;
     const gravity = 0.5;
 
@@ -85,6 +67,12 @@
                 type: Phaser.AUTO,
                 width: WIDTH,
                 height: HEIGHT,
+                physics: {
+                    default: "arcade",
+                    arcade: {
+                        debug: true
+                    }
+                },
                 scene: {
                     preload: preload,
                     create: create,
