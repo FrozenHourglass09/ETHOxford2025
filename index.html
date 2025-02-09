@@ -34,9 +34,27 @@
     const WIDTH = window.innerWidth;
 
     //Variables
-    var game;
     var isConnected = false;
-    var platforms = [];
+    var config = {
+        type: Phaser.AUTO,
+        width: WIDTH,
+        height: HEIGHT,
+        physics: {
+            default: "arcade",
+            arcade: {
+                debug: true
+            }
+        },
+        scene: {
+            preload: preload,
+            create: create,
+            update: update
+        }
+    };
+
+
+    var game = new Phaser.Game(config);
+    platforms = [];
     var player;
     const gravity = 0.5;
 
@@ -84,6 +102,8 @@
         //Load images for the game 
         this.load.image('sky', 'assets/Background/sky.png');
         this.load.image('ground', 'assets/Background/ground.jpg');
+        this.load.image('player', 'assets/Main Characters/Virtual Guy/Jump (32x32).png');
+        this.load.image('enemy', 'assets/Main Characters/Mask Dude/Jump (32x32).png');
     }
 
     //Create the game and the player and the platforms in the game 
@@ -92,34 +112,56 @@
         //Create the sky and the ground 
         sky = this.add.tileSprite(0,0,WIDTH,HEIGHT, 'sky').setOrigin(0,0).setScale(2);
 
-        ground = this.add.tileSprite(0, HEIGHT/100*90, WIDTH, 0, 'ground').setOrigin(0,0);
+        //ground = this.add.tileSprite(0, HEIGHT/100*90, WIDTH, 0, 'ground').setOrigin(0,0);
 
+        platformsGroup = this.physics.add.staticGroup();
         //Create the platforms 
         addPlatform(WIDTH/100*70,HEIGHT/100*50,100,100);
         addPlatform(WIDTH/100*50,HEIGHT/100*20,500,100);
+        addPlatform(0,HEIGHT/100*90,WIDTH,100);
 
         //Draw the platforms 
         platforms.forEach(element => {
-            this.add.tileSprite(element.pos_x, element.pos_y, element.height, element.width,'ground');
+            let platform = this.add.tileSprite(element.pos_x, element.pos_y, element.height, element.width, 'ground').setOrigin(0,0);
+            this.physics.add.existing(platform, true); // Add a static physics body to the platform
+            platformsGroup.add(platform);
         });
-        //Create the player 
-        player = new Player(this, 100, 100);
 
+        //Create the player 
+        player = new Player(this.physics, 100, 100);
         //Create the monster
-        monster = new Monster(this, 600, 50);
+        monster = new Monster(this.physics, 600, 50);
 
         //set the camera to follow the player
         this.cameras.main.startFollow(player.sprite);
         this.cameras.main.setBounds(0, 0, WIDTH * 2, HEIGHT);
+
+        // Add Game Over text
+        gameOverText = this.add.text(WIDTH / 2, HEIGHT / 2, 'Game Over', { fontSize: '64px', fill: '#fff' });
+        gameOverText.setOrigin(0.5);
+        gameOverText.setVisible(false);
+
+        // Add collider between player and monster
+        this.physics.add.collider(player.sprite, monster.sprite, function (playerSprite, monsterSprite) {
+            gameOverText.setVisible(true);
+        });
+
+            // Add collider between player and platforms
+            this.physics.add.collider(player.sprite, platformsGroup);
+
+        // Add collider between monster and platforms
+            this.physics.add.collider(monster.sprite, platformsGroup);
+
     }
 
     //Update the game 
     function update()
     {
+        if(!gameOverText.visible){
         //Move the sky and initialise the player movement
-        sky.tilePositionX += 1;
         player.update();
         monster.update(player);
+        }
     }
 
     //Add a platform to the game 
@@ -136,34 +178,30 @@
     }
 
     class Player {
-        constructor(scene, x, y) {
-            this.scene = scene;
+        constructor(physics, x, y) {
             //Create the player sprite
-            this.sprite = scene.add.rectangle(x, y, 100, 100, 0xff0000);
+            this.sprite = physics.add.sprite(x, y, 'player').setScale(2);
+            this.sprite.setCollideWorldBounds(true); // Ensure the player collides with world bounds
+            this.sprite.body.setGravityY(300); // Set gravity for the player
             this.velocity = {x: 0, y: 1};
             this.height = 100;
-            
         }
         
         //Update the player position 
         update() {
             this.sprite.x += this.velocity.x;
             this.sprite.y += this.velocity.y;
-            if (this.sprite.y + this.height + this.velocity.y < HEIGHT -45) {
-                this.velocity.y += gravity;
-            } else {
-                this.velocity.y = 0;
-            }
+            this.velocity.y += gravity;
         }
     }
 
     class Monster {
-        constructor(scene, x, y){
-            this.scene = scene;
-            this.sprite = scene.add.rectangle(x, y, 50, 50, 0x00ff00);
+        constructor(physics, x, y){
+            this.sprite = physics.add.sprite(x, y, 'enemy').setScale(2);
+            this.sprite.setCollideWorldBounds(true); // Ensure the monster collides with world bounds
+            this.sprite.body.setGravityY(300); // Set gravity for the monster
             this.velocity = {x: 1, y: 0};
             this.gravity = gravity;
-            this.height = 100;
         }
 
         update(player){
@@ -172,13 +210,7 @@
             } else {
                 this.sprite.x -= this.velocity.x;
             }
-
-            //Gravity on the monster
-            if (this.sprite.y + this.height + this.velocity.y < HEIGHT -20) {
-                this.velocity.y += this.gravity;
-            } else {
-                this.velocity.y = 0;
-            }
+            this.velocity.y += this.gravity;
             this.sprite.y += this.velocity.y;
         }
     }
