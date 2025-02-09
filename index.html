@@ -100,7 +100,7 @@
         update() {
             this.sprite.x += this.velocity.x;
             this.sprite.y += this.velocity.y;
-            if (this.sprite.y + this.height + this.velocity.y < HEIGHT) {
+            if (this.sprite.y + this.height + this.velocity.y < HEIGHT -45) {
                 this.velocity.y += gravity;
             } else {
                 this.velocity.y = 0;
