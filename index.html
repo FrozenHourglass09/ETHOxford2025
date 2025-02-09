@@ -64,6 +64,10 @@
         });
         //Create the player 
         player = new Player(this, 100, 100);
+
+        //set the camera to follow the player
+        this.cameras.main.startFollow(player.sprite);
+        this.cameras.main.setBounds(0, 0, WIDTH * 2, HEIGHT);
     }
 
     //Update the game 
