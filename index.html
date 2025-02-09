@@ -5,15 +5,28 @@
     <title>BlockRunner</title>
     <script src="phaser.js"></script>
     <script src="platform.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.36/dist/web3.min.js"></script>
     
     <style type="text/css">
         body {
             margin: 0;
         }
+        #connectButton {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 10px 20px;
+            background-color: #f6851b;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
-
+    <button id="connectButton">Connect Wallet</button>
+    <connectWallet></connectWallet>
+ 
 <script type="text/javascript">
 
     //Height and width of the window
@@ -21,6 +34,7 @@
     const WIDTH = window.innerWidth;
 
     //Variables
+    var isConnected = false;
     var config = {
         type: Phaser.AUTO,
         width: WIDTH,
@@ -43,6 +57,44 @@
     platforms = [];
     var player;
     const gravity = 0.5;
+
+    // Function to connect to MetaMask
+    async function connectWallet() {
+        if (window.ethereum) {
+            try {
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                console.log('Connected account:', accounts[0]);
+                document.getElementById('connectButton').innerText = 'Connected';
+                isConnected = true;
+                startGame();
+            } catch (error) {
+                console.error('User rejected the request.');
+            }
+        } else {
+            alert('MetaMask is not installed. Please install it to use this feature.');
+        }
+    }
+
+    // Add event listener to the connect button
+    document.getElementById('connectButton').addEventListener('click', connectWallet);
+
+    // Function to start the game
+    function startGame() {
+        if (isConnected) {
+            var config = {
+                type: Phaser.AUTO,
+                width: WIDTH,
+                height: HEIGHT,
+                scene: {
+                    preload: preload,
+                    create: create,
+                    update: update
+                }
+            };
+
+            game = new Phaser.Game(config);
+        }
+    }
 
     //Functions that are called by the game 
     function preload ()
