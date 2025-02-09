@@ -65,6 +65,9 @@
         //Create the player 
         player = new Player(this, 100, 100);
 
+        //Create the monster
+        monster = new Monster(this, 600, 50);
+
         //set the camera to follow the player
         this.cameras.main.startFollow(player.sprite);
         this.cameras.main.setBounds(0, 0, WIDTH * 2, HEIGHT);
@@ -76,6 +79,7 @@
         //Move the sky and initialise the player movement
         sky.tilePositionX += 1;
         player.update();
+        monster.update(player);
     }
 
     //Add a platform to the game 
@@ -98,6 +102,7 @@
             this.sprite = scene.add.rectangle(x, y, 100, 100, 0xff0000);
             this.velocity = {x: 0, y: 1};
             this.height = 100;
+            
         }
         
         //Update the player position 
@@ -109,6 +114,32 @@
             } else {
                 this.velocity.y = 0;
             }
+        }
+    }
+
+    class Monster {
+        constructor(scene, x, y){
+            this.scene = scene;
+            this.sprite = scene.add.rectangle(x, y, 50, 50, 0x00ff00);
+            this.velocity = {x: 1, y: 0};
+            this.gravity = gravity;
+            this.height = 100;
+        }
+
+        update(player){
+            if(this.sprite.x < player.sprite.x){
+                this.sprite.x += this.velocity.x;
+            } else {
+                this.sprite.x -= this.velocity.x;
+            }
+
+            //Gravity on the monster
+            if (this.sprite.y + this.height + this.velocity.y < HEIGHT -20) {
+                this.velocity.y += this.gravity;
+            } else {
+                this.velocity.y = 0;
+            }
+            this.sprite.y += this.velocity.y;
         }
     }
 
