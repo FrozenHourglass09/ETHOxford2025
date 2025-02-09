@@ -1,3 +1,4 @@
+// Description: This file contains the class Platform which is used to create the platforms in the game.
 class Platform {
     constructor(pos_x, pos_y, height, width){
         image = this.load.image('platform', 'assets/Background/ground.jpg');

@@ -2,9 +2,8 @@
 <html lang="en"> 
 <head> 
     <meta charset="UTF-8" />
-    <title>Making your first Phaser 3 Game - Part 1</title>
+    <title>BlockRunner</title>
     <script src="phaser.js"></script>
-
     <script src="platform.js"></script>
     
     <style type="text/css">
@@ -17,9 +16,11 @@
 
 <script type="text/javascript">
 
+    //Height and width of the window
     const HEIGHT = window.innerHeight;
     const WIDTH = window.innerWidth;
 
+    //Variables
     var config = {
         type: Phaser.AUTO,
         width: WIDTH,
@@ -31,38 +32,49 @@
         }
     };
 
+
     var game = new Phaser.Game(config);
     platforms = [];
     var player;
     const gravity = 0.5;
 
+    //Functions that are called by the game 
     function preload ()
     {
+        //Load images for the game 
         this.load.image('sky', 'assets/Background/sky.png');
         this.load.image('ground', 'assets/Background/ground.jpg');
     }
 
+    //Create the game and the player and the platforms in the game 
     function create ()
     {
+        //Create the sky and the ground 
         sky = this.add.tileSprite(0,0,WIDTH,HEIGHT, 'sky').setOrigin(0,0).setScale(2);
 
         ground = this.add.tileSprite(0, HEIGHT/100*90, WIDTH, 0, 'ground').setOrigin(0,0);
 
+        //Create the platforms 
         addPlatform(WIDTH/100*70,HEIGHT/100*50,100,100);
         addPlatform(WIDTH/100*50,HEIGHT/100*20,500,100);
 
+        //Draw the platforms 
         platforms.forEach(element => {
             this.add.tileSprite(element.pos_x, element.pos_y, element.height, element.width,'ground');
         });
+        //Create the player 
         player = new Player(this, 100, 100);
     }
 
+    //Update the game 
     function update()
     {
+        //Move the sky and initialise the player movement
         sky.tilePositionX += 1;
         player.update();
     }
 
+    //Add a platform to the game 
     function addPlatform(pos_x, pos_y, height, width) {
         platform = {
             pos_x : pos_x,
@@ -70,6 +82,7 @@
             height : height,
             width : width
         }
+        //Add the platform to the list of platforms
         new_platform = {...platform};
         platforms.push(new_platform);
     }
@@ -77,11 +90,13 @@
     class Player {
         constructor(scene, x, y) {
             this.scene = scene;
+            //Create the player sprite
             this.sprite = scene.add.rectangle(x, y, 100, 100, 0xff0000);
             this.velocity = {x: 0, y: 1};
             this.height = 100;
         }
-
+        
+        //Update the player position 
         update() {
             this.sprite.x += this.velocity.x;
             this.sprite.y += this.velocity.y;
@@ -93,12 +108,14 @@
         }
     }
 
+    //Initialise the keys 
     const keys = {
         d: {key: 'd', pressed: false},
         q: {key: 'q', pressed: false},
         z: {key: 'z', pressed: false}
     };
 
+    //Add event listeners for the keys Down
     window.addEventListener('keydown', (event) => {
         switch(event.key){
             case 'd':
@@ -115,19 +132,21 @@
         }
     });
 
-window.addEventListener('keyup', (event) => {
-    switch(event.key){
-        case 'd':
-            keys.d.pressed = false
-            player.velocity.x = 0;
-            break
-        case 'q':
-            keys.q.pressed = false
-            player.velocity.x = 0;
-            break
-    }
-})
+    //Add event listeners for the keys Up
+    window.addEventListener('keyup', (event) => {
+        switch(event.key){
+            case 'd':
+                keys.d.pressed = false
+                player.velocity.x = 0;
+                break
+            case 'q':
+                keys.q.pressed = false
+                player.velocity.x = 0;
+                break
+        }
+    })
 
+    //Draw the platform 
     function drawPlatform(platform){
         this.add.tileSprite(platform['pos_x'], platform['pos_y'], platform['height'], platform['width'], 'ground').setOrigin(0,0);
     }
